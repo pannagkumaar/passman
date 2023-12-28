@@ -8,10 +8,11 @@ aesthetics()
 create_table()
 generate_hash()
 check,value=check_hash()
-if not check:
+while not check:
     if value=="9":
         reset()
         generate_hash()
+        check=check_hash()
     else:    
         print(Style.RESET_ALL+"Wrong Password")
         sys.exit()

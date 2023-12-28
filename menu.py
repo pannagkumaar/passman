@@ -18,7 +18,6 @@ def menu():
     # Aesthetics
     print("-" * 40)
     print("-" * 40)
-    print("-" * 40)
     print("1. Create New Password")
     print("2. Find a Password for a Service")
     print("3. Find All Passwords for an Email")
@@ -77,8 +76,7 @@ def find_email():
 def aesthetics():
    
     print(Fore.CYAN + "#" * 40)
-    print("#" * 40)
-    print("To reset the password press 9 ")
    
     print("#" * 40)
+    print("To reset the password press 9 ")
     print()
