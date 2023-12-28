@@ -1,0 +1,27 @@
+# Keys
+secret.key
+master.key
+
+# Env
+.venv
+.env
+
+# Database
+Manager.db
+
+# Cache
+__pycache__
+
+# VSCode
+.vscode
+
+# Exe
+version.txt
+_pyinstaller.py
+passman.spec
+dist
+build
+upx-3.96-win64
+
+# Todo
+TODO.txt
