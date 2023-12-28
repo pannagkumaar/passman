@@ -40,7 +40,7 @@ def check_hash():
     hash_from_db = fetch_master_hash()
     MasterPasswordInputNow = input("Enter the Master Password: ")
     MasterPasswordInputNowHashed = hashlib.sha256(MasterPasswordInputNow.encode()).hexdigest()
-    return MasterPasswordInputNowHashed == hash_from_db
+    return MasterPasswordInputNowHashed == hash_from_db, MasterPasswordInputNow
 
 def DoesKeyExist():
     return fetch_secret_key() is not None
@@ -70,7 +70,7 @@ def generateKey():
 
 
 def loadKey():
-    key = bytes(os.environ["key"], "utf-8")
+    key = fetch_secret_key()
     return key
 
 

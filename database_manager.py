@@ -27,7 +27,27 @@ def conn():
         return None
 
     return connect
+def reset():
+    connect = conn()
+    cursor = connect.cursor()
+    print("Resetting Database")
+    
+    print("Warning: This will delete all your data")
+    print("Press y to continue any other key to exit")
+    if input() != "y":
+        print("Going back to the main menu")
+        return
+    # Delete all entries from Accounts table
+    cursor.execute("DELETE FROM Accounts;")
+    
+    # Delete all entries from Master table
+    cursor.execute("DELETE FROM Master;")
+    
+    # Delete all entries from SecretKey table
+    cursor.execute("DELETE FROM SecretKey;")
 
+    connect.commit()
+    
 def create_table():
     connect = conn()
     cursor = connect.cursor()

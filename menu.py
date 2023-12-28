@@ -78,7 +78,7 @@ def aesthetics():
    
     print(Fore.CYAN + "#" * 40)
     print("#" * 40)
-    print()
+    print("To reset the password press 9 ")
    
     print("#" * 40)
     print()
