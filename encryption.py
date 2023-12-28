@@ -56,8 +56,8 @@ def generateKey():
 
         # Using PBKDF2 to derive the key from the master password
         kdf = PBKDF2HMAC(
-            algorithm=hashes.SHA256(),
-            length=32,  # Length of the derived key
+            algorithm=hashes.SHA512(),
+            length=64,  # Length of the derived key
             salt=salt,
             iterations=100000,  # Adjust the number of iterations based on your security requirements
             backend=default_backend()
@@ -74,17 +74,39 @@ def loadKey():
     return key
 
 
+from cryptography.fernet import Fernet, InvalidToken
+
 def encryptPass(passw):
     key = loadKey()
     fernet = Fernet(key)
-    encodedPass = passw.encode()
-    encryptedPass = fernet.encrypt(encodedPass)
-    return encryptedPass
+    
+    try:
+        # Use a unique IV for each encryption
+        iv = Fernet.generate_key()
+        cipher_text = fernet.encrypt(iv + passw.encode())
+        return cipher_text
+    except Exception as e:
+        print(f"Encryption error: {e}")
+        return None
+
 
 
 def decryptPass(encryptedPass):
     key = loadKey()
     fernet = Fernet(key)
-    decryptedPass = fernet.decrypt(encryptedPass)
-    passw = decryptedPass.decode()
-    return passw
+    
+    try:
+        # Extract IV from the beginning of the ciphertext
+        iv = encryptedPass[:16]
+        cipher_text = encryptedPass[16:]
+        
+        # Use IV during decryption
+        decryptedPass = fernet.decrypt(iv + cipher_text)
+        passw = decryptedPass.decode()
+        return passw
+    except InvalidToken:
+        print("Invalid token. Decryption failed.")
+        return None
+    except Exception as e:
+        print(f"Decryption error: {e}")
+        return None
