@@ -1,5 +1,5 @@
 import pymysql
-
+import base64
 
 
 
@@ -58,7 +58,8 @@ def create_table():
         Email BLOB NOT NULL,
         Username BLOB NOT NULL,
         Url BLOB,
-        Service TEXT NOT NULL
+        Service TEXT NOT NULL,
+        tag VARCHAR(255) NOT NULL
     ); """
     cursor.execute(create_accounts_table)
 
@@ -87,7 +88,6 @@ def fetch_master_hash():
         return None
     finally:
         connect.close()
-
 def fetch_secret_key():
     connect = conn()
     cursor = connect.cursor()
@@ -99,6 +99,7 @@ def fetch_secret_key():
         print(e)
         return None
     finally:
+        cursor.close()
         connect.close()
 
 def store_master_hash(master_hash):
@@ -112,16 +113,25 @@ def store_master_hash(master_hash):
 def store_secret_key(secret_key):
     connect = conn()
     cursor = connect.cursor()
-    insert_command = """INSERT INTO SecretKey (`Key`) VALUES (%s);"""
-    data_to_insert = (secret_key,)
-    cursor.execute(insert_command, data_to_insert)
-    connect.commit()
+    try:
+        # Explicitly encode the key before storing
+        
+        insert_command = """INSERT INTO SecretKey (`Key`) VALUES (%s);"""
+        data_to_insert = (secret_key,)
+        cursor.execute(insert_command, data_to_insert)
+        connect.commit()
+    except Exception as e:
+        print(e)
+    finally:
+        cursor.close()
+        connect.close()
 
-def store_password(password, email, username, siteurl, service):
+
+def store_password(password, email, username, siteurl, service,tag):
     connect = conn()
     cursor = connect.cursor()
-    insertCommand = """INSERT INTO Accounts (Password, Email, Username, Url, Service) VALUES (%s, %s, %s, %s, %s);"""
-    dataToInsert = (password, email, username, siteurl, service)
+    insertCommand = """INSERT INTO Accounts (Password, Email, Username, Url, Service,tag) VALUES (%s, %s, %s, %s, %s,%s);"""
+    dataToInsert = (password, email, username, siteurl, service,tag)
     cursor.execute(insertCommand, dataToInsert)
     connect.commit()
 
@@ -135,7 +145,9 @@ def find_password(serviceName):
     if not results:
         return ""
     passw = results[0][0]
-    return passw
+    tag=results[0][5]
+    
+    return passw,tag
 
 def find_using_email(email):
     connect = conn()
@@ -146,4 +158,4 @@ def find_using_email(email):
     connect.commit()
     return results
 
-create_table   ()
+     

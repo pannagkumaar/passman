@@ -1,4 +1,5 @@
 from encryption import generateKey, encryptPass, decryptPass
+import base64
 from database_manager import (
     store_password,
     find_password,
@@ -6,7 +7,6 @@ from database_manager import (
 )
 import subprocess
 from colorama import Fore, Style
-from change_attrib import change_file_attribute
 
 
 def menu():
@@ -34,10 +34,13 @@ def store():
     service = input("Service: ")
     if len(username) < 1:
         username = ""
-    encryptedPass = encryptPass(password)
-    store_password(encryptedPass, email, username, url, service)
+    encryptedPass,tag = encryptPass(password)
+    hex_string1 = ''.join(format(byte, '02x') for byte in encryptedPass)
+    hex_string2 = ''.join(format(byte, '02x') for byte in tag)
+    
+
+    store_password(hex_string1, email, username, url, service,hex_string2)
     print("_" * 40)
-    print("Encrypted Password: " + encryptedPass.decode('utf-8'))
     print(
         "Password Encrypted and Stored",
     )
@@ -46,23 +49,29 @@ def store():
 
 def find():
     service = input("Service: ")
-    encryptedPass = find_password(service)
-    if encryptedPass == "":
+    encrypted_pass_hex, tag_hex = find_password(service)
+
+    if encrypted_pass_hex == "" or tag_hex == "":
         print("No Password Found")
     else:
-        passw = decryptPass(encryptedPass)
+        # Convert hex strings to byte strings
+        encrypted_pass = bytes.fromhex(encrypted_pass_hex)
+        tag = bytes.fromhex(tag_hex)
+
+        # Decrypt the password
+        passw = decryptPass(encrypted_pass, tag)
+
+        # Assuming decryptPass returns the original password as a string
         subprocess.run("clip", universal_newlines=True, input=passw)
         print("_" * 40)
-        print(
-            "Password has been copied to clipboard",
-        )
+        print("Password has been copied to clipboard")
         print("_" * 40)
 
-
 def find_email():
-    data = ["Encrypted Password", "Email", "Username", "Url", "Service"]
+    data = ["Encrypted Password", "Email", "Username", "Url", "Service","Tag"]
     email = input("Email: ")
     results = find_using_email(email)
+    print(results)
     print("-" * 40)
     if results:
         for row in results:
